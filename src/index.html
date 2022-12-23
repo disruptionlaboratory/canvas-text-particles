@@ -37,7 +37,7 @@
 
     class Particle {
 
-      constructor(ctx, x, y, radius, color = null) {
+      constructor(ctx, x, y, radius) {
         this.ctx = ctx;
         this.x = x;
         this.y = y;
@@ -45,11 +45,7 @@
         this.density = (Math.random() * 80) + 1;
         this.originX = x;
         this.originY = y;
-        if (!color) {
-          this.color = Particle.pickSpriteColor();
-        } else {
-          this.color = color;
-        }
+        this.color = Particle.pickSpriteColor();
       }
 
       static pickSpriteColor() {
