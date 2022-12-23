@@ -1,149 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Text Particles</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            background-color: black;
-        }
+      body {
+        background-color: black;
+      }
     </style>
-</head>
-<body>
-  <canvas></canvas>
+  </head>
+  <body>
+    <canvas></canvas>
 
-  <script>
+    <script>
+      const canvas = document.querySelector("canvas");
+      const context = canvas.getContext("2d");
 
-    const canvas = document.querySelector("canvas");
-    const context = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+      let particles = [];
+      let animationFrameId = null;
 
-    let particles = [];
-    let animationFrameId = null
+      const mouse = {
+        x: null,
+        y: null,
+        radius: 80,
+      };
 
-    const mouse = {
-      x: null,
-      y: null,
-      radius: 80
-    }
-
-    class Particle {
-
-      constructor(ctx, x, y, radius) {
-        this.ctx = ctx;
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.density = (Math.random() * 80) + 1;
-        this.originX = x;
-        this.originY = y;
-        this.color = Particle.pickSpriteColor();
-      }
-
-      static pickSpriteColor() {
-        const colors = ["#DC7633", "#F5B041", "#2ECC71", "#16A085", "#3498DB", "#BB8FCE", "#EC7063", "#BFC9CA"]
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        return color;
-      }
-
-      render() {
-        this.ctx.fillStyle = this.color
-        this.ctx.strokeStyle = this.color
-        this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-        this.ctx.stroke();
-        this.ctx.fill();
-      }
-
-      update() {
-        const dx = mouse.x - this.x;
-        const dy = mouse.y - this.y;
-        const distance = Math.sqrt((dx * dx) + (dy * dy));
-        const forceDirectionX = dx / distance
-        const forceDirectionY = dy / distance
-        const maxDistance = mouse.radius
-        const force = (maxDistance - distance) / maxDistance
-        const directionX = forceDirectionX * force * this.density
-        const directionY = forceDirectionY * force * this.density
-        if (distance < mouse.radius) {
-          this.x -= directionX
-          this.y -= directionY
-        } else {
-          if (this.x !== this.originX) {
-            const dx = this.x - this.originX
-            this.x -= dx / 10;
-          }
-          if (this.y !== this.originY) {
-            const dy = this.y - this.originY
-            this.y -= dy / 10;
-          }
+      class Particle {
+        constructor(ctx, x, y, radius) {
+          this.ctx = ctx;
+          this.x = x;
+          this.y = y;
+          this.radius = radius;
+          this.density = Math.random() * 80 + 1;
+          this.originX = x;
+          this.originY = y;
+          this.color = Particle.pickSpriteColor();
         }
-        this.render();
+
+        static pickSpriteColor() {
+          const colors = [
+            "#DC7633",
+            "#F5B041",
+            "#2ECC71",
+            "#16A085",
+            "#3498DB",
+            "#BB8FCE",
+            "#EC7063",
+            "#BFC9CA",
+          ];
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          return color;
+        }
+
+        render() {
+          this.ctx.fillStyle = this.color;
+          this.ctx.strokeStyle = this.color;
+          this.ctx.beginPath();
+          this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+          this.ctx.stroke();
+          this.ctx.fill();
+        }
+
+        update() {
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const forceDirectionX = dx / distance;
+          const forceDirectionY = dy / distance;
+          const maxDistance = mouse.radius;
+          const force = (maxDistance - distance) / maxDistance;
+          const directionX = forceDirectionX * force * this.density;
+          const directionY = forceDirectionY * force * this.density;
+          if (distance < mouse.radius) {
+            this.x -= directionX;
+            this.y -= directionY;
+          } else {
+            if (this.x !== this.originX) {
+              const dx = this.x - this.originX;
+              this.x -= dx / 10;
+            }
+            if (this.y !== this.originY) {
+              const dy = this.y - this.originY;
+              this.y -= dy / 10;
+            }
+          }
+          this.render();
+        }
       }
-    }
 
-    const createParticlesFromText = () => {
-
+      const createParticlesFromText = () => {
         context.fillStyle = "#FFFFFF";
-        context.font = "30px Arial, sans serif"
-        context.textAlign = "left"
+        context.font = "30px Arial, sans serif";
+        context.textAlign = "left";
         context.fillText("Text Particles", 0, 40);
-
         const textCoordinates = context.getImageData(0, 0, 250, 100);
-
         for (let y = 0, y2 = textCoordinates.height; y < y2; y++) {
           for (let x = 0, x2 = textCoordinates.width; x < x2; x++) {
-            if (textCoordinates.data[(y * 4 * textCoordinates.width) + (x * 4) + 3] > 0) {
-              console.log("X")
-              particles.push(
-                new Particle(
-                  context,
-                  (x * 8) + 40,
-                  (y * 8) + 50 ,
-                  3
-                )
-              );
+            if (
+              textCoordinates.data[y * 4 * textCoordinates.width + x * 4 + 3] >
+              0
+            ) {
+              console.log("X");
+              particles.push(new Particle(context, x * 8 + 40, y * 8 + 50, 3));
             }
           }
         }
-    }
+      };
 
-    createParticlesFromText();
-
-    mouse.x = 0;
-    mouse.y = 0;
-
-    document.addEventListener('mousemove', (evt) => {
-      mouse.x = evt.x
-      mouse.y = evt.y
-    })
-
-    window.addEventListener('resize', (evt) => {
-      cancelAnimationFrame(animationFrameId);
-      particles = [];
       createParticlesFromText();
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      animate();
-    })
 
-    const animate = () => {
-      animationFrameId = requestAnimationFrame(animate);
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p) => {
-        p.update();
+      mouse.x = 0;
+      mouse.y = 0;
+
+      document.addEventListener("mousemove", (evt) => {
+        mouse.x = evt.x;
+        mouse.y = evt.y;
       });
-    };
 
-    animate();
-  </script>
-</body>
+      window.addEventListener("resize", (evt) => {
+        cancelAnimationFrame(animationFrameId);
+        particles = [];
+        createParticlesFromText();
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        animate();
+      });
+
+      const animate = () => {
+        animationFrameId = requestAnimationFrame(animate);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p) => {
+          p.update();
+        });
+      };
+
+      animate();
+    </script>
+  </body>
 </html>
